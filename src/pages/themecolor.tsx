@@ -114,7 +114,7 @@ export default function ThemeColor() {
                         <Typography variant="h5">选择图像</Typography>
                         <Divider />
                         <input id="image" type="file" accept="image/*" onChange={changeImage}></input>
-                        <Button variant="outlined" color="primary" onClick={execute} variant="contained" disabled={inProgress}>执行</Button><Fade
+                        <Button variant="outlined" color="primary" onClick={execute} disabled={inProgress}>执行</Button><Fade
                             in={inProgress}
                             unmountOnExit
                             timeout={800}
