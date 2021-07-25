@@ -10,6 +10,7 @@ import UtilContainer from '../container/util'
 import { useGapStyle ,useFooterStyle} from '../compo/styles';
 import useControlledValue from '../compo/controlledValue'
 import clsx from 'clsx';
+import Link from 'next/link'
 function useThemeColorWorker() {
     const promiseWorker = useRef<PromiseWorker>()
     useEffect(() => {
@@ -113,7 +114,7 @@ export default function ThemeColor() {
                         <Typography variant="h5">选择图像</Typography>
                         <Divider />
                         <input id="image" type="file" accept="image/*" onChange={changeImage}></input>
-                        <Button variant="outlined" color="primary" onClick={execute} disabled={inProgress}>执行</Button><Fade
+                        <Button variant="outlined" color="primary" onClick={execute} variant="contained" disabled={inProgress}>执行</Button><Fade
                             in={inProgress}
                             unmountOnExit
                             timeout={800}
@@ -122,7 +123,7 @@ export default function ThemeColor() {
                         </Fade>
                         <Typography variant="subtitle1">当前图像</Typography>
                         <Placeholder className={styles.preview} caption="暂无预览" >
-                            {currentImageUrl ? <img ref={refImageElement} className={styles.preview} src={currentImageUrl}></img> : null}
+                            {currentImageUrl ? <img ref={refImageElement} alt="preview" className={styles.preview} src={currentImageUrl}></img> : null}
                         </Placeholder>
                     </Container>
 
@@ -189,9 +190,9 @@ export default function ThemeColor() {
         <Divider variant="fullWidth" className={gapStyles.has_vertical_gap} />
         <div className={clsx(footerStyles.footer,footerStyles.flex)}>
             <GitHubIcon />
-            <a href="https://github.com/KotoriK/palette">
-                <Typography variant='caption'>KotoriK/palette</Typography>
-            </a>
+            <Link href="https://github.com/KotoriK/palette" passHref>
+                <Typography component="a" variant='caption'>KotoriK/palette</Typography>
+            </Link>
         </div>
     </UtilContainer>
 }

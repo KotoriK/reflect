@@ -1,10 +1,11 @@
-import { createGenerateClassName, CssBaseline, StylesProvider } from "@material-ui/core";
+import { MuiThemeProvider, CssBaseline, createMuiTheme, responsiveFontSizes } from "@material-ui/core";
 import Head from "next/head";
 import useHorse from "../compo/horse";
 import { PageTransition } from 'next-page-transitions'
 import '../page-transition.css'
 import { useRouter } from "next/router";
 import RouteName from '../route.json'
+import { useColorScheme } from "../compo/styles";
 const PROJECT_NAME = 'kotorik/utils'
 export default function App({ Component, pageProps }) {
     useHorse()
@@ -13,7 +14,18 @@ export default function App({ Component, pageProps }) {
     const routeInfo = RouteName[route]
     const pageTitle = routeInfo?.name ? routeInfo.name + ' - ' + PROJECT_NAME : PROJECT_NAME
     const pageDescription = routeInfo?.description ?? PROJECT_NAME
-    return <>
+    const theme = responsiveFontSizes(createMuiTheme({
+        palette: {
+            type: useColorScheme() ? 'dark' : 'light',
+            primary: {
+                main: '#1976d2',
+              },
+              secondary: {
+                main: '#40c4ff',
+              },
+        }
+    }))
+    return <MuiThemeProvider theme={theme}>
         <CssBaseline />
         <Head>
             <title>{pageTitle}</title>
@@ -21,5 +33,6 @@ export default function App({ Component, pageProps }) {
         </Head>
         <PageTransition timeout={300} classNames="page-transition">
             <Component {...pageProps} key={route} />
-        </PageTransition></>
+        </PageTransition>
+    </MuiThemeProvider>
 }

@@ -1,13 +1,13 @@
 import { createStyles, makeStyles, Typography } from "@material-ui/core"
 import clsx from 'clsx'
-const useStyles = makeStyles(() => createStyles({
+const useStyles = makeStyles((theme) => createStyles({
     'container': {
         justifyContent:"center",
         alignItems:"center",
         display:"flex",
     },
     'dashed':{
-        border:"dashed",
+        border:theme.palette.text.primary+" dashed",
     }
 }))
 const Placeholder = ({className,caption,children}:{caption:string,className?:string,children?:JSX.Element})=>{

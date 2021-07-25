@@ -1,4 +1,4 @@
-import { Container, Divider, List, ListItem, makeStyles, Paper, Typography, useTheme, Grid, Switch, FormControlLabel, useMediaQuery, ListItemIcon, ListItemText, ListSubheader } from '@material-ui/core'
+import { Container, Divider, List, ListItem, makeStyles, Paper, Typography, useTheme, Grid, Switch, FormControlLabel, ListItemIcon, ListItemText } from '@material-ui/core'
 import clsx from 'clsx';
 
 import { connect, Provider, useSelector } from 'react-redux'
