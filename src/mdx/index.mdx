@@ -11,13 +11,13 @@
 * **base**:[/api/base64?(encode|decode)=(base64 format string)&b32=(any)](./api/base)<br></br>
       解码/编码 base64/base32
       若有传递b32参数且不为空，则使用base32进行编解码。否则使用base64
-      返回格式:json {ok:boolean,data:string} ok指示是否成功，data包含结果或错误<br></br>
+      返回格式:json {ok:boolean,data:string} ok指示是否成功，data包含结果或错误<br></br><br></br>
       ex.1:[/api/base?encode=114514](./api/base?encode=114514)<br></br>
-      returns {"ok":true,"data":"MTE0NTE0"}<br></br>
+      returns ```{"ok":true,"data":"MTE0NTE0"}```<br></br>
       ex.2:[/api/base?decode=QWNyb3NzIHRoZSBHcmVhdCBXYWxsIHdlIGNhbiByZWFjaCBldmVyeSBjb3JuZXIgaW4gdGhlIHdvcmxkLg==](./api/base?decode=QWNyb3NzIHRoZSBHcmVhdCBXYWxsIHdlIGNhbiByZWFjaCBldmVyeSBjb3JuZXIgaW4gdGhlIHdvcmxkLg==)<br></br>
-      returns {"ok":true,"data":"Across the Great Wall we can reach every corner in the world."}
+      returns ```{"ok":true,"data":"Across the Great Wall we can reach every corner in the world."}```<br></br>
       ex.3:[/api/base?encode=114514&b32=1](./api/base?encode=114514&b32=1)<br></br>
-      returns {"ok":true,"data":"GEYTINJRGQ======"}<br></br>
+      returns ```{"ok":true,"data":"GEYTINJRGQ======"}```<br></br><br></br>
 * **doh**:[/api/doh?name=(string)&dns_domain=(string, default "cloudflare-dns.com")&record_type=(string, default "AAAA")](./api/doh)
       执行DNS查询
       返回格式: json {ok:boolean,data:Object}<br></br>
