@@ -1,15 +1,24 @@
-import { Container, Divider, List, ListItem, makeStyles, Paper, Typography, useTheme, Grid } from '@material-ui/core'
+import { Container, Divider, List, ListItem, makeStyles, Paper, Typography, useTheme, Grid, Switch, FormControlLabel, useMediaQuery, ListItemIcon, ListItemText, ListSubheader } from '@material-ui/core'
 import clsx from 'clsx';
-import { useMemo } from 'react';
-import { useIntl } from 'react-intl';
-import { connect, Provider } from 'react-redux'
+
+import { connect, Provider, useSelector } from 'react-redux'
 import { createStore } from 'redux'
 import undoable, { StateWithHistory, ActionCreators as UndoActionCreators } from 'redux-undo'
 import { getLensName, Lens, OP_Lens } from '../compo/lens';
 import { IntlProvider } from 'react-intl'
 import defaultLocaleConfig from '../locale'
-import { OP_SensorSize, SENSOR_SIZES, Sensor_Size, Size2Name, getStopLost, getCropFactor, getNameId } from '../compo/sensor'
+import { OP_SensorSize, SENSOR_SIZES, Sensor_Size, Size2Name, getStopLost, getCropFactor, getNameId, getKeyOfSensorSize } from '../compo/sensor'
 import UtilContainer from '../container/util';
+import Link from 'next/link'
+//react hooks
+import { useEffect, useMemo } from 'react';
+import { useIntl } from 'react-intl';
+import { useFooterStyle, useGapStyle } from '../compo/styles';
+import useControlledValue from '../compo/controlledValue';
+
+//icons
+import CropIcon from '@material-ui/icons/Crop';
+import ExposureIcon from '@material-ui/icons/Exposure';
 
 interface EFLState {
     lens: Lens,
@@ -45,6 +54,11 @@ const useStyles = makeStyles(theme => {
         },
         listItem: {
             display: 'block'
+        },
+        ul: {
+            marginBlockStart: 0,
+            marginBlockEnd: 0,
+            paddingInlineStart: 20
         }
     }
 })
@@ -122,15 +136,15 @@ const OP_SensorSize_Group_Connected = connect((state: StateWithHistory<EFLState>
             clear: () => dispatch(clearSensors()),
             setBaseSensor: (i: number) => dispatch(setBaseSensor(i))
         }
-    })(function OP_SensorSize_Group_Connected({ baseSensor, sensors, addSensor, removeSensor, editSensor, clear }: {
+    })(function OP_SensorSize_Group_Connected({ showRealSizeSensor, baseSensor, sensors, addSensor, removeSensor, editSensor, clear }: {
         sensors: Sensor_Size[], baseSensor: number, addSensor: (data: Sensor_Size) => EFLStateAction,
         removeSensor: (i: number) => EFLStateAction, editSensor: (data: Sensor_Size, i: number) => EFLStateAction,
-        clear: () => EFLStateAction
+        clear: () => EFLStateAction, showRealSizeSensor: boolean
     }) {
         const styles = useStyles()
         return <>
-            {(sensors.length == 0 ? <ListItem><OP_SensorSize onChange={(data) => addSensor(data)}></OP_SensorSize></ListItem> : sensors.map((sensor, index) =>
-                <ListItem className={clsx(index == baseSensor && styles.baseSensor)}><OP_SensorSize value={sensor} onChange={(data) => editSensor(data, index)}></OP_SensorSize></ListItem>
+            {(sensors.length == 0 ? <ListItem><OP_SensorSize showRealSizeSensor={showRealSizeSensor} onChange={(data) => addSensor(data)}></OP_SensorSize></ListItem> : sensors.map((sensor, index) =>
+                <ListItem className={clsx(index == baseSensor && styles.baseSensor)} key={getKeyOfSensorSize(sensor)}><OP_SensorSize showRealSizeSensor={showRealSizeSensor} value={sensor} onChange={(data) => editSensor(data, index)}></OP_SensorSize></ListItem>
             ))}</>
     })
 const OP_Lens_Connected = connect((state: StateWithHistory<EFLState>) => { return { lens: state.present.lens } }, dispatch => {
@@ -142,6 +156,7 @@ interface ResultProp {
     baseSensor: Sensor_Size, cropFactor: number, stopLost: number, sensor: Sensor_Size
     , lens_35mm: Lens, lens_sameEffect: Lens
 }
+const SensorHighlight = (caption: string) => <span style={{ color: useTheme().palette.secondary.main }}>{caption}</span>
 function Result({ baseSensor, cropFactor, stopLost, sensor, lens_35mm, lens_sameEffect }: ResultProp) {
     const intl = useIntl()
     const baseSensorName = useMemo(() => intl.formatMessage({ id: getNameId(Size2Name.get(baseSensor)) }), [baseSensor])
@@ -149,29 +164,42 @@ function Result({ baseSensor, cropFactor, stopLost, sensor, lens_35mm, lens_same
     const theme = useTheme()
     return <>
         <Typography component="span" variant='h6' style={{ textDecoration: 'bold' }}>{`${sensorName}`}</Typography>
+        {' '}
         <Typography component="span" variant='subtitle2' style={{ textDecoration: 'bold', color: theme.palette.secondary.main }}>{`与${baseSensorName}相比较`}</Typography>
-        {[`裁切系数：${cropFactor.toFixed(3)}`, `进光量损失:f${stopLost.toFixed(3)}`, `您选择的${getLensName(lens_35mm)}在${sensorName}等效为${getLensName(lens_sameEffect)}`].map(text => <Typography component="p">{text}</Typography>)}
+        <List>
+            <ListItem>
+                <ListItemIcon><CropIcon /></ListItemIcon>
+                <ListItemText primary="裁切系数" secondary={cropFactor.toFixed(3)} />
+            </ListItem>
+            <ListItem>
+                <ListItemIcon><ExposureIcon /></ListItemIcon>
+                <ListItemText primary="进光量损失" secondary={stopLost.toFixed(3)} />
+            </ListItem>
+        </List>
+        <Typography component="p" variant="body2">{`您选择的 ${getLensName(lens_35mm)} 在`}
+            {SensorHighlight(sensorName)}
+            {'上等效为'}
+            {SensorHighlight(baseSensorName)}
+            {`上的 ${getLensName(lens_sameEffect)}`}</Typography>
     </>
 }
-const Results = connect((state: StateWithHistory<EFLState>) => { const { sensors, baseSensor, lens } = state.present; return { sensors, baseSensor, lens } })
-    (function Results({ sensors: _sensors, baseSensor: baseIndex, lens }: { sensors: Sensor_Size[], baseSensor: number, lens: Lens }) {
-        const sensors = [..._sensors]
-        const baseSensor = sensors.splice(baseIndex, 1)[0]
-        const styles = useStyles()
 
-        return <List>
-            {sensors
-                .filter((sensor) => sensor != SENSOR_SIZES[''])
-                .map((sensor, index) => {
-                    const cropFactor = getCropFactor(sensor, baseSensor)
-                    return <ListItem key={`r${index}`} className={styles.listItem}>
-                        <Result stopLost={getStopLost(sensor, baseSensor)}
-                            cropFactor={cropFactor}
-                            baseSensor={baseSensor} sensor={sensor} lens_35mm={lens} lens_sameEffect={{ focal: (lens.focal * cropFactor), aperture: (lens.aperture * cropFactor) }} />
-                    </ListItem>
-                })}
-        </List>
-    })
+function useResults() {
+    const { sensors: _sensors, baseSensor: baseIndex, lens } = useSelector((state: StateWithHistory<EFLState>) => { const { sensors, baseSensor, lens } = state.present; return { sensors, baseSensor, lens } })
+    const sensors = [..._sensors]
+    const baseSensor = sensors.splice(baseIndex, 1)[0]
+    const styles = useStyles()
+    return sensors
+        .filter((sensor) => sensor != SENSOR_SIZES[''])
+        .map((sensor, index) => {
+            const cropFactor = getCropFactor(sensor, baseSensor)
+            return <ListItem key={`r${index}`} className={styles.listItem}>
+                <Result stopLost={getStopLost(sensor, baseSensor)}
+                    cropFactor={cropFactor}
+                    baseSensor={baseSensor} sensor={sensor} lens_35mm={lens} lens_sameEffect={{ focal: (lens.focal * cropFactor), aperture: (lens.aperture * cropFactor) }} />
+            </ListItem>
+        })
+}
 const EFL = connect((state: StateWithHistory<EFLState>) => {
     return {
         canUndo: state.past.length > 0,
@@ -186,31 +214,72 @@ const EFL = connect((state: StateWithHistory<EFLState>) => {
     })(
         function EFL() {
             const styles = useStyles()
+            const gapStyles = useGapStyle()
+            const footerStyles = useFooterStyle().footer
+            const theme = useTheme()
+            const [showRealSensor, setShowReal] = useControlledValue(false)
+            const results = useResults()
+            useEffect(() => {
+                const minWidth = theme.breakpoints.width('md')
+                const isWiderThanSmall = window.matchMedia(`(min-width:${minWidth}px)`).matches
+                if (isWiderThanSmall) {
+                    setShowReal(undefined, true)
+                }
+            }, [])
             return <IntlProvider locale={'zh-CN'}
                 messages={defaultLocaleConfig}
             >
                 <UtilContainer>
+                    <Typography variant="h4">等效换算</Typography>
+                    <Divider />
+                    <FormControlLabel
+                        control={
+                            <Switch
+                                checked={showRealSensor}
+                                onChange={setShowReal}
+                                color="primary"
+                            />
+                        }
+                        label="传感器实际大小预览"
+                        className={gapStyles.has_vertical_gap}
+                    />
                     <Grid container spacing={2}>
-                        <Grid item md xs={12}>
-                            <Container>
-                                <Paper>
-                                    <List><OP_SensorSize_Group_Connected />
-                                        <OP_Lens_Connected /></List>
-                                </Paper>
-                            </Container>
+                        <Grid item sm={12} lg={6}>
+                            <Paper>
+                                <List>
+                                    <OP_SensorSize_Group_Connected showRealSizeSensor={showRealSensor} />
+                                    <OP_Lens_Connected />
+                                </List>
+                            </Paper>
                         </Grid>
-                        <Grid item md xs={12}>
-                            <Container>
-                                <Paper>
-                                    <Container>
-                                        <Typography variant="h5">结果</Typography>
-                                        <Divider />
-                                        <Results />
-                                    </Container>
-                                </Paper>
-                            </Container>
-                        </Grid>
+                        {results.length == 0 ? null : <Grid item sm={12} lg={6}>
+                            <Paper>
+                                <Container>
+                                    <div className={gapStyles.vgap}></div>
+                                    <Typography variant="h5">结果</Typography>
+                                    <Divider />
+                                    <List>
+                                        {results}
+                                    </List>
+                                </Container>
+                            </Paper>
+                        </Grid>}
                     </Grid>
+                    <Divider variant="fullWidth" className={gapStyles.has_vertical_gap} />
+                    <Typography variant='caption' component='div' className={footerStyles}>
+                        <strong>Reference</strong>
+                        <ul className={styles.ul}>
+                            <li>
+                                <Link href="https://en.wikipedia.org/wiki/Image_sensor_format">Image sensor format - Wikipedia</Link>
+                            </li>
+                            <li>
+                                <Link href="https://en.wikipedia.org/wiki/120_film">120 film - Wikipedia</Link>
+                            </li>
+                            <li>
+                                <Link href="https://en.wikipedia.org/wiki/Film_format">Film format - Wikipedia</Link>
+                            </li>
+                        </ul>
+                    </Typography>
                 </UtilContainer>
             </IntlProvider >
         })

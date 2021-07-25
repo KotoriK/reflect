@@ -7,8 +7,9 @@ import Placeholder from '../compo/placeholder'
 import Color from '../compo/color'
 import PromiseWorker from 'promise-worker';
 import UtilContainer from '../container/util'
-import { useGapStyle } from '../compo/styles';
-
+import { useGapStyle ,useFooterStyle} from '../compo/styles';
+import useControlledValue from '../compo/controlledValue'
+import clsx from 'clsx';
 function useThemeColorWorker() {
     const promiseWorker = useRef<PromiseWorker>()
     useEffect(() => {
@@ -30,19 +31,6 @@ const useStyles = makeStyles((theme) => createStyles({
         marginLeft: "auto",
         marginRight: "auto"
     },
-    "footer": {
-        display: 'flex',
-        alignItems: 'flex-end',
-        margin: "10px 0 10px",
-        "& > a": {
-            marginLeft: '5px',
-            color: theme.palette.text.primary,
-            textDecoration: 'none',
-            "&:hover": {
-                textDecoration: 'underline',
-            }
-        }
-    },
     "result": {
         display: "flex",
         "& span": {
@@ -62,13 +50,6 @@ const KMeansSetting_iteration_marks = KMeansSetting_iteration_range.map(_mapRang
 
 type ThemeColorStateResult = Pick<KMeansResult, 'iterate_time' | 'cluster_center' | 'fit_thresold' | 'size'> & { label: string[] }
 
-function useControlledValue<T>(initialValue?: T) {
-    const [value, set] = useState(initialValue)
-    const cb = useCallback((_, next: T) => {
-        set(next)
-    }, [])
-    return [value, cb] as [T, (_: any, next: T) => void]
-}
 export default function ThemeColor() {
     const [currentImageUrl, setImageBlobUrl] = useState<string>('')
     const [result, setResult] = useState<ThemeColorStateResult>()
@@ -100,7 +81,11 @@ export default function ThemeColor() {
         setResult(result)
         setInProgress(false)
     }, [refImageElement, kMeansSetting_k, kMeansSetting_iteration, doDownSample, themeColorWorker])
+
     const styles = useStyles()
+    const gapStyles = useGapStyle()
+    const footerStyles = useFooterStyle()
+
     const mappedResult = useMemo(() =>
         result && <>
             <div className={styles.result}>
@@ -116,7 +101,6 @@ export default function ThemeColor() {
                 </Grid>)}
         </>
         , [result])
-    const gapStyles = useGapStyle()
     return <UtilContainer>
         <Typography variant="h4">主题颜色</Typography>
         <Divider />
@@ -203,7 +187,7 @@ export default function ThemeColor() {
             </Grid>}
         </Grid>
         <Divider variant="fullWidth" className={gapStyles.has_vertical_gap} />
-        <div className={styles.footer}>
+        <div className={clsx(footerStyles.footer,footerStyles.flex)}>
             <GitHubIcon />
             <a href="https://github.com/KotoriK/palette">
                 <Typography variant='caption'>KotoriK/palette</Typography>

@@ -17,3 +17,22 @@ export const useGapStyle = makeStyles((theme) => createStyles({
         marginBottom: 12
     },
 }))
+export const useFooterStyle = makeStyles(theme=>{
+    return {
+        "footer": {
+            margin: "10px 0 10px",
+            "& a": {
+                marginLeft: '5px',
+                color: theme.palette.text.primary,
+                textDecoration: 'none',
+                "&:hover": {
+                    textDecoration: 'underline',
+                }
+            }
+        },
+        flex:{
+            display: 'flex',
+            alignItems: 'flex-end',
+        }
+    }
+})
