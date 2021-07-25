@@ -1,12 +1,13 @@
-import { Button, Container, Grid, Toolbar, makeStyles, Typography, Divider, Card, Slider, Switch, FormControlLabel, CircularProgress, Fade } from '@material-ui/core'
+import { Button, Container, Grid, makeStyles, Typography, Divider, Card, Slider, Switch, FormControlLabel, CircularProgress, Fade } from '@material-ui/core'
 import { ChangeEventHandler, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { createStyles } from '@material-ui/core'
 import { readImage, KMeansResult, readImageDownsampling, normalizeRGBA, rgbaToHSLA, sortHSL } from 'palette'
 import GitHubIcon from '@material-ui/icons/GitHub';
 import Placeholder from '../compo/placeholder'
 import Color from '../compo/color'
-import Link from 'next/link'
 import PromiseWorker from 'promise-worker';
+import UtilContainer from '../container/util'
+
 function useThemeColorWorker() {
     const promiseWorker = useRef<PromiseWorker>()
     useEffect(() => {
@@ -125,13 +126,7 @@ export default function ThemeColor() {
                 </Grid>)}
         </>
         , [result])
-    return <>
-        <Toolbar>
-            <Link href="/">
-                <Button color="primary">{"< 返回"}</Button>
-            </Link>
-        </Toolbar>
-        <Container>
+    return <UtilContainer>
             <Typography variant="h4">主题颜色</Typography>
             <Divider />
             <div className={styles.vgap}></div>
@@ -223,9 +218,7 @@ export default function ThemeColor() {
                     <Typography variant='caption'>KotoriK/palette</Typography>
                 </a>
             </div>
-
-        </Container>
-    </>
+    </UtilContainer>
 }
 
 
