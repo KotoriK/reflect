@@ -24,6 +24,6 @@ export function OP_Lens({lens,onChange,className}:{lens:Lens,onChange:(next:Lens
         })
     }, [onChange, focal])
     return <>
-    <TextField className={styles} label="镜头35mm焦距" value={focal} onChange={handleFocal} InputProps={{ endAdornment: <InputAdornment position="start">mm</InputAdornment> }} />
+    <TextField className={styles} label="镜头基准画幅等效焦距" value={focal} onChange={handleFocal} InputProps={{ endAdornment: <InputAdornment position="start">mm</InputAdornment> }} />
     <TextField className={styles} label="镜头光圈" value={aperture} onChange={handleAperture} InputProps={{ startAdornment: <InputAdornment position="start">F/</InputAdornment> }} /></>
 }
