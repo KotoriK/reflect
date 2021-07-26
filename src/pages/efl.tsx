@@ -49,7 +49,7 @@ type EFLStateAction = {
 const useStyles = makeStyles(theme => {
     return {
         baseSensor: {
-            backgroundColor: theme.palette.primary.light + '88'
+            border: theme.palette.primary.light + ' dotted'
         },
         block: {
             padding: theme.spacing(3)
