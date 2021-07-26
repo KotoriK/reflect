@@ -1,4 +1,5 @@
 import { makeStyles, Typography } from "@material-ui/core";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { Sensor_Size } from "./sensor";
 const useStyles = makeStyles((theme) => {
     return {
@@ -10,8 +11,8 @@ const useStyles = makeStyles((theme) => {
             display: 'flex',
             justifyContent: 'center',
             alignItems: 'center',
-            marginLeft:"auto",
-            marginRight:"auto"
+            marginLeft: "auto",
+            marginRight: "auto"
         },
         middle: {
             textAlign: 'center',
@@ -19,10 +20,28 @@ const useStyles = makeStyles((theme) => {
         }
     }
 })
+function useCurrentAvailWidth() {
+    const [width, set] = useState(0)
+    useEffect(() => {
+        //假设屏幕不会变化
+        //虽然还是会变的
+        set(screen.availWidth)
+    }, [])
+    return width
+}
 export function RealSizeSensor({ size: { width, height }, caption }: { size: Sensor_Size, caption?: string }) {
     const styles = useStyles()
     const prop_width = `${width}mm`, prop_height = `${height}mm`
-    return <div className={styles.realSizeSensor} style={{
+    const ref = useRef<HTMLDivElement>()
+    const [isWiderThanScreen, setIsWiderThanScreen] = useState(false)
+    const availWidth = useCurrentAvailWidth()
+    useEffect(() => {
+        const element = ref.current
+        if (element) {
+            setIsWiderThanScreen(element.clientWidth >= availWidth)
+        }
+    }, [width, availWidth])
+    return <div ref={ref} className={styles.realSizeSensor} style={{
         width: prop_width,
         height: prop_height,
         minHeight: prop_height,
@@ -33,6 +52,7 @@ export function RealSizeSensor({ size: { width, height }, caption }: { size: Sen
         <div className={styles.middle}>
             {caption ? <Typography variant='subtitle2' >{caption}</Typography> : null}
             <Typography variant='subtitle2' >{`${prop_width} x ${prop_height}`}</Typography>
+            {isWiderThanScreen && <Typography variant='subtitle2' style={{ color: 'red' }}>传感器大小大于屏幕宽度</Typography>}
         </div>
 
     </div>
