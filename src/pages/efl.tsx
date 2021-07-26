@@ -175,7 +175,7 @@ function Result({ baseSensor, cropFactor, stopLost, sensor, lens_35mm, lens_same
             </ListItem>
             <ListItem>
                 <ListItemIcon><ExposureIcon /></ListItemIcon>
-                <ListItemText primary="进光量损失" secondary={stopLost.toFixed(3)} />
+                <ListItemText primary="进光量变化" secondary={stopLost.toFixed(3)} />
             </ListItem>
         </List>
         <Typography component="p" variant="body2">{`您选择的 ${getLensName(lens_35mm)} 在`}
