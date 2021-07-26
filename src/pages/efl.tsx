@@ -1,8 +1,8 @@
-import { Container, Divider, List, ListItem, makeStyles, Paper, Typography, useTheme, Grid, Switch, FormControlLabel, ListItemIcon, ListItemText } from '@material-ui/core'
+import { Container, Divider, List, ListItem, makeStyles, Paper, Typography, useTheme, Grid, Switch, FormControlLabel, ListItemIcon, ListItemText, IconButton } from '@material-ui/core'
 import clsx from 'clsx';
 
 import { connect, Provider, useSelector } from 'react-redux'
-import { createStore } from 'redux'
+import { createStore,Action } from 'redux'
 import undoable, { StateWithHistory, ActionCreators as UndoActionCreators } from 'redux-undo'
 import { getLensName, Lens, OP_Lens } from '../compo/lens';
 import { IntlProvider } from 'react-intl'
@@ -11,7 +11,7 @@ import { OP_SensorSize, SENSOR_SIZES, Sensor_Size, Size2Name, getStopLost, getCr
 import UtilContainer from '../container/util';
 import Link from 'next/link'
 //react hooks
-import { useEffect, useMemo } from 'react';
+import { useCallback, useEffect, useMemo } from 'react';
 import { useIntl } from 'react-intl';
 import { useFooterStyle, useGapStyle } from '../compo/styles';
 import useControlledValue from '../compo/controlledValue';
@@ -19,6 +19,8 @@ import useControlledValue from '../compo/controlledValue';
 //icons
 import CropIcon from '@material-ui/icons/Crop';
 import ExposureIcon from '@material-ui/icons/Exposure';
+import RedoIcon from '@material-ui/icons/Redo';
+import UndoIcon from '@material-ui/icons/Undo';
 
 interface EFLState {
     lens: Lens,
@@ -212,7 +214,7 @@ const EFL = connect((state: StateWithHistory<EFLState>) => {
             onRedo: () => dispatch(UndoActionCreators.redo())
         }
     })(
-        function EFL() {
+        function EFL({ canUndo, canRedo, onUndo, onRedo }:{canUndo:boolean,canRedo:boolean,onUndo:()=>Action<any>,onRedo:()=>Action<any>}) {
             const styles = useStyles()
             const gapStyles = useGapStyle()
             const footerStyles = useFooterStyle().footer
@@ -220,11 +222,22 @@ const EFL = connect((state: StateWithHistory<EFLState>) => {
             const [showRealSensor, setShowReal] = useControlledValue(false)
             const results = useResults()
             useEffect(() => {
+                //根据页面宽度决定是否打开底片尺寸预览
                 const minWidth = theme.breakpoints.width('md')
                 const isWiderThanSmall = window.matchMedia(`(min-width:${minWidth}px)`).matches
                 if (isWiderThanSmall) {
                     setShowReal(undefined, true)
                 }
+            }, [])
+            const keyboardListener = useCallback((e) => {
+                if (e.ctrlKey) {
+                    if (e.key == 'z') onUndo()
+                    else if (e.key == 'y') onRedo()
+                }
+            }, [])
+            useEffect(() => {
+                document.addEventListener('keypress', keyboardListener)
+                return () => document.removeEventListener('keypress', keyboardListener)
             }, [])
             return <IntlProvider locale={'zh-CN'}
                 messages={defaultLocaleConfig}
@@ -232,6 +245,12 @@ const EFL = connect((state: StateWithHistory<EFLState>) => {
                 <UtilContainer>
                     <Typography variant="h4">等效换算</Typography>
                     <Divider />
+                    <IconButton aria-label="Undo" color="primary" disabled={!canUndo} onClick={onUndo}>
+                        <UndoIcon/>
+                    </IconButton>
+                    <IconButton aria-label="Redo" color="primary" disabled={!canRedo} onClick={onRedo}>
+                        <RedoIcon/>
+                    </IconButton>
                     <FormControlLabel
                         control={
                             <Switch
