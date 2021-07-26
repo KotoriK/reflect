@@ -146,7 +146,7 @@ const OP_SensorSize_Group_Connected = connect((state: StateWithHistory<EFLState>
         const styles = useStyles()
         return <>
             {(sensors.length == 0 ? <ListItem><OP_SensorSize showRealSizeSensor={showRealSizeSensor} onChange={(data) => addSensor(data)}></OP_SensorSize></ListItem> : sensors.map((sensor, index) =>
-                <ListItem className={clsx(index == baseSensor && styles.baseSensor)} key={getKeyOfSensorSize(sensor)}><OP_SensorSize showRealSizeSensor={showRealSizeSensor} value={sensor} onChange={(data) => editSensor(data, index)}></OP_SensorSize></ListItem>
+                <ListItem className={clsx(index == baseSensor && styles.baseSensor)} key={index}><OP_SensorSize showRealSizeSensor={showRealSizeSensor} value={sensor} onChange={(data) => editSensor(data, index)}></OP_SensorSize></ListItem>
             ))}</>
     })
 const OP_Lens_Connected = connect((state: StateWithHistory<EFLState>) => { return { lens: state.present.lens } }, dispatch => {
