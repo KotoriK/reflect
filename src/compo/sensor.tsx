@@ -4,9 +4,7 @@ import { useIntl } from "react-intl"
 import { useFormCtrlStyle } from "./styles"
 import clsx from 'clsx'
 import { RealSizeSensor } from "./RealSizeSensor"
-import ratio from 'aspect-ratio'
 
-import AspectRatioIcon from '@material-ui/icons/AspectRatio';
 export const SENSOR_SIZES = {
     "8x10": {
         width: 254, height: 203
@@ -109,7 +107,7 @@ export function getSensorDiagonalLength(sensor: Sensor_Size) {
     const { width, height } = sensor
     return Math.sqrt(Math.pow(width, 2) + Math.pow(height, 2))
 }
-export function getCropFactor(a: Sensor_Size, b: Sensor_Size) {
+export function getCropFactorDia(a: Sensor_Size, b: Sensor_Size) {
     //https://en.wikipedia.org/wiki/Image_sensor_format#cite_note-34
     return getSensorDiagonalLength(b) / getSensorDiagonalLength(a)
 }
