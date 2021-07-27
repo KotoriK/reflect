@@ -10,7 +10,7 @@ import clsx from 'clsx';
 
 function HTTPCat(statusCode: number) {
     return <>
-        <img src={`https://http.cat/${statusCode}`} alt={"cat_"+statusCode}></img>
+        <img src={`https://http.cat/${statusCode}`} alt={"cat_"+statusCode} style={{width:"100%"}}></img>
         <Typography variant="caption" component="p" color="textSecondary">cute cats from <Link href="https://http.cat" passHref><LinkCompo>http.cat</LinkCompo></Link></Typography>
     </>
 }
