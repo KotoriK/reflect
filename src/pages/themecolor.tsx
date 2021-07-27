@@ -113,8 +113,8 @@ export default function ThemeColor() {
                     <Container className={gapStyles.has_vertical_gap}>
                         <Typography variant="h5">选择图像</Typography>
                         <Divider />
-                        <Button variant="outlined" color="primary" onClick={execute} disabled={inProgress}>执行</Button><Fade
                         <Input id="image" type="file" inputProps={{accept:"image/*"}} onChange={changeImage} required></Input>
+                        <Button variant="outlined" color="primary" onClick={execute} disabled={inProgress || !currentImageUrl}>执行</Button><Fade
                             in={inProgress}
                             unmountOnExit
                             timeout={800}
