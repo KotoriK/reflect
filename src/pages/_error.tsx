@@ -69,7 +69,7 @@ Error.getInitialProps = ({ req, res, err }) => {
     if (custom_code) {
         return { statusCode: parseInt(custom_code[1]) }
     }
-    console.log('res', res.statusCode, 'err', err.statusCode)
+    console.log('res', res?.statusCode, 'err', err?.statusCode)
     const statusCode = res ? res.statusCode : err ? err.statusCode : 404
     return { statusCode }
 }
