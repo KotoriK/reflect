@@ -53,3 +53,13 @@ export function useColorScheme() {
     }, [])
     return value
 }
+export const useFlexCenter =
+    makeStyles(() => {
+        return {
+            'flex-center': {
+                justifyContent: "center",
+                alignItems: "center",
+                display: "flex",
+            }
+        }
+    })
