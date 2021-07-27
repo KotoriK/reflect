@@ -1,4 +1,4 @@
-import { Button, Container, Grid, makeStyles, Typography, Divider, Card, Slider, Switch, FormControlLabel, CircularProgress, Fade } from '@material-ui/core'
+import { Input,Button, Container, Grid, makeStyles, Typography, Divider, Card, Slider, Switch, FormControlLabel, CircularProgress, Fade } from '@material-ui/core'
 import { ChangeEventHandler, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { createStyles } from '@material-ui/core'
 import { readImage, KMeansResult, readImageDownsampling, normalizeRGBA, rgbaToHSLA, sortHSL } from 'palette'
@@ -113,8 +113,8 @@ export default function ThemeColor() {
                     <Container className={gapStyles.has_vertical_gap}>
                         <Typography variant="h5">选择图像</Typography>
                         <Divider />
-                        <input id="image" type="file" accept="image/*" onChange={changeImage}></input>
                         <Button variant="outlined" color="primary" onClick={execute} disabled={inProgress}>执行</Button><Fade
+                        <Input id="image" type="file" inputProps={{accept:"image/*"}} onChange={changeImage} required></Input>
                             in={inProgress}
                             unmountOnExit
                             timeout={800}
