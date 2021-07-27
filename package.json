@@ -25,7 +25,6 @@
     "@types/urlencode": "^1.1.2",
     "@vercel/node": "^1.11.1",
     "ascii2d": "github:KotoriK/ascii2d",
-    "aspect-ratio": "^2.1.1",
     "cheerio": "^1.0.0-rc.10",
     "clsx": "^1.1.1",
     "github-markdown-css": "^4.0.0",
