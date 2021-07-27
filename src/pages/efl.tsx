@@ -158,7 +158,7 @@ interface ResultProp {
     baseSensor: Sensor_Size, cropFactDia: number, stopLost: number, sensor: Sensor_Size
     , lens_35mm: Lens, lens_sameEffect: Lens
 }
-const SensorHighlight = (caption: string) => <span style={{ color: useTheme().palette.secondary.main }}>{caption}</span>
+const SensorHighlight = (caption: string) => <span style={{ color: useTheme().palette.primary.main }}>{caption}</span>
 function Result({ baseSensor, cropFactDia, stopLost, sensor, lens_35mm, lens_sameEffect }: ResultProp) {
     const intl = useIntl()
     const baseSensorName = useMemo(() => intl.formatMessage({ id: getNameId(Size2Name.get(baseSensor)) }), [baseSensor])
@@ -167,7 +167,7 @@ function Result({ baseSensor, cropFactDia, stopLost, sensor, lens_35mm, lens_sam
     return <>
         <Typography component="span" variant='h6' style={{ textDecoration: 'bold' }}>{`${sensorName}`}</Typography>
         {' '}
-        <Typography component="span" variant='subtitle2' style={{ textDecoration: 'bold', color: theme.palette.secondary.main }}>{`与${baseSensorName}相比较`}</Typography>
+        <Typography component="span" variant='subtitle2' style={{ textDecoration: 'bold', color: theme.palette.primary.main }}>{`与${baseSensorName}相比较`}</Typography>
         <List>
             <ListItem>
                 <ListItemIcon><CropIcon /></ListItemIcon>
@@ -183,6 +183,7 @@ function Result({ baseSensor, cropFactDia, stopLost, sensor, lens_35mm, lens_sam
             {'上等效为'}
             {SensorHighlight(baseSensorName)}
             {`上的 ${getLensName(lens_sameEffect)}`}</Typography>
+            <Typography variant="caption" color="textSecondary"><strong>等效 </strong>是指视角与景深等效，不考虑纵横比变化。</Typography>
     </>
 }
 
