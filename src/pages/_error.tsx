@@ -7,23 +7,10 @@ import Link from 'next/link'
 import { Link as LinkCompo } from '@material-ui/core'
 import GitHubIcon from '@material-ui/icons/GitHub';
 import clsx from 'clsx';
-import { useState } from "react"
 
-function useHTTPCat(statusCode: number) {
-    const [anchorEl, setAnchorEl] = useState(null);
-
-    const handlePopoverOpen = (event) => {
-        setAnchorEl(event.currentTarget);
-    };
-
-    const handlePopoverClose = () => {
-        setAnchorEl(null);
-    };
-    const open = anchorEl ? true : false
+function HTTPCat(statusCode: number) {
     return <>
-        <img src={`https://http.cat/${statusCode}`} onMouseEnter={handlePopoverOpen}
-            onMouseLeave={handlePopoverClose} aria-owns={open ? 'mouse-over-popover' : undefined}
-            aria-haspopup="true"></img>
+        <img src={`https://http.cat/${statusCode}`} alt={"cat_"+statusCode}></img>
         <Typography variant="caption" component="p" color="textSecondary">cute cats from <Link href="https://http.cat" passHref><LinkCompo>http.cat</LinkCompo></Link></Typography>
     </>
 }
@@ -34,11 +21,11 @@ function ErrorContentWithStatusCode({ statusCode }) {
     switch (statusCode) {
         case 404:
             if (Math.random() < 0.5) {
-                attach = <Image src={pic404}></Image>
+                attach = <Image src={pic404} alt="404"></Image>
                 break
             }
         default:
-            attach = <><糟了 />{useHTTPCat(statusCode)}</>
+            attach = <><糟了 />{HTTPCat(statusCode)}</>
     }
     return <>
         <StatusCode statusCode={statusCode}></StatusCode>
