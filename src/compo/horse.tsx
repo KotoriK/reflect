@@ -10,23 +10,23 @@ export default function useHorse() {
             sleep(1500).then(() => {
                 document.title = '🐴'
             })
-            .then(async()=>{
-                let count = 0
-                const addHorse = async() => {
-                    if (document.visibilityState == "hidden" ) {
-                        if(count<9){
-                           document.title += HORSE
-                        count++
-                        await sleep(1000)
-                        addHorse()  
+                .then(async () => {
+                    let count = 0
+                    const addHorse = async () => {
+                        if (document.visibilityState == "hidden") {
+                            if (count < 9) {
+                                document.title += HORSE
+                                count++
+                                await sleep(1000)
+                                addHorse()
+                            }
+                        } else {
+                            document.title = _title.current
                         }
-                    } else {
-                        document.title = _title.current
                     }
-                }
-                sleep(1000).then(addHorse)
-            }) 
-        }else{
+                    sleep(1000).then(addHorse)
+                })
+        } else {
             document.title = _title.current
         }
     }, [_title.current])

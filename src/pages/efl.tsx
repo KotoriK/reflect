@@ -2,7 +2,7 @@ import { Container, Divider, List, ListItem, makeStyles, Paper, Typography, useT
 import clsx from 'clsx';
 
 import { connect, Provider, useSelector } from 'react-redux'
-import { createStore,Action } from 'redux'
+import { createStore, Action } from 'redux'
 import undoable, { StateWithHistory, ActionCreators as UndoActionCreators } from 'redux-undo'
 import { getLensName, Lens, OP_Lens } from '../compo/lens';
 import { IntlProvider } from 'react-intl'
@@ -183,7 +183,7 @@ function Result({ baseSensor, cropFactDia, stopLost, sensor, lens_35mm, lens_sam
             {'上等效为'}
             {SensorHighlight(baseSensorName)}
             {`上的 ${getLensName(lens_sameEffect)}`}</Typography>
-            <Typography variant="caption" color="textSecondary"><strong>等效 </strong>是指视角与景深等效，不考虑纵横比变化。</Typography>
+        <Typography variant="caption" color="textSecondary"><strong>等效 </strong>是指视角与景深等效，不考虑纵横比变化。</Typography>
     </>
 }
 
@@ -215,7 +215,7 @@ const EFL = connect((state: StateWithHistory<EFLState>) => {
             onRedo: () => dispatch(UndoActionCreators.redo())
         }
     })(
-        function EFL({ canUndo, canRedo, onUndo, onRedo }:{canUndo:boolean,canRedo:boolean,onUndo:()=>Action<any>,onRedo:()=>Action<any>}) {
+        function EFL({ canUndo, canRedo, onUndo, onRedo }: { canUndo: boolean, canRedo: boolean, onUndo: () => Action<any>, onRedo: () => Action<any> }) {
             const styles = useStyles()
             const gapStyles = useGapStyle()
             const footerStyles = useFooterStyle().footer
@@ -247,10 +247,10 @@ const EFL = connect((state: StateWithHistory<EFLState>) => {
                     <Typography variant="h4">等效换算</Typography>
                     <Divider />
                     <IconButton aria-label="Undo" color="primary" disabled={!canUndo} onClick={onUndo}>
-                        <UndoIcon/>
+                        <UndoIcon />
                     </IconButton>
                     <IconButton aria-label="Redo" color="primary" disabled={!canRedo} onClick={onRedo}>
-                        <RedoIcon/>
+                        <RedoIcon />
                     </IconButton>
                     <FormControlLabel
                         control={

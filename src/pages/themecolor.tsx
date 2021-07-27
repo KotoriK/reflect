@@ -1,4 +1,4 @@
-import { Input,Button, Container, Grid, makeStyles, Typography, Divider, Card, Slider, Switch, FormControlLabel, CircularProgress, Fade } from '@material-ui/core'
+import { Input, Button, Container, Grid, makeStyles, Typography, Divider, Card, Slider, Switch, FormControlLabel, CircularProgress, Fade } from '@material-ui/core'
 import { ChangeEventHandler, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { createStyles } from '@material-ui/core'
 import { readImage, KMeansResult, readImageDownsampling, normalizeRGBA, rgbaToHSLA, sortHSL } from 'palette'
@@ -7,7 +7,7 @@ import Placeholder from '../compo/placeholder'
 import Color from '../compo/color'
 import PromiseWorker from 'promise-worker';
 import UtilContainer from '../container/util'
-import { useGapStyle ,useFooterStyle} from '../compo/styles';
+import { useGapStyle, useFooterStyle } from '../compo/styles';
 import useControlledValue from '../compo/controlledValue'
 import clsx from 'clsx';
 import Link from 'next/link'
@@ -113,7 +113,7 @@ export default function ThemeColor() {
                     <Container className={gapStyles.has_vertical_gap}>
                         <Typography variant="h5">选择图像</Typography>
                         <Divider />
-                        <Input id="image" type="file" inputProps={{accept:"image/*"}} onChange={changeImage} required></Input>
+                        <Input id="image" type="file" inputProps={{ accept: "image/*" }} onChange={changeImage} required></Input>
                         <Button variant="outlined" color="primary" onClick={execute} disabled={inProgress || !currentImageUrl}>执行</Button><Fade
                             in={inProgress}
                             unmountOnExit
@@ -188,7 +188,7 @@ export default function ThemeColor() {
             </Grid>}
         </Grid>
         <Divider variant="fullWidth" className={gapStyles.has_vertical_gap} />
-        <div className={clsx(footerStyles.footer,footerStyles.flex)}>
+        <div className={clsx(footerStyles.footer, footerStyles.flex)}>
             <GitHubIcon />
             <Link href="https://github.com/KotoriK/palette" passHref>
                 <Typography component="a" variant='caption'>KotoriK/palette</Typography>

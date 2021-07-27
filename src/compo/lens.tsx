@@ -3,16 +3,16 @@ import clsx from "clsx"
 import { useCallback, ChangeEvent } from "react"
 import { useFormCtrlStyle } from "./styles"
 
-export interface Lens{
-    focal:number,
-    aperture:number
+export interface Lens {
+    focal: number,
+    aperture: number
 }
-export function getLensName({focal,aperture}:Lens){
+export function getLensName({ focal, aperture }: Lens) {
     return `${focal.toFixed(2)}mm F/${aperture.toFixed(2)}`
 }
-export function OP_Lens({lens,onChange,className}:{lens:Lens,onChange:(next:Lens)=>void,className?:string}){
+export function OP_Lens({ lens, onChange, className }: { lens: Lens, onChange: (next: Lens) => void, className?: string }) {
     const styles = clsx(className, useFormCtrlStyle().formControl)
-    const {focal,aperture}=lens
+    const { focal, aperture } = lens
     const handleFocal = useCallback((event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
         onChange({
             focal: parseFloat(event.target.value), aperture
@@ -24,6 +24,6 @@ export function OP_Lens({lens,onChange,className}:{lens:Lens,onChange:(next:Lens
         })
     }, [onChange, focal])
     return <>
-    <TextField className={styles} label="镜头焦距" value={focal} onChange={handleFocal} InputProps={{ endAdornment: <InputAdornment position="start">mm</InputAdornment>,type:"number" }} />
-    <TextField className={styles} label="镜头光圈" value={aperture} onChange={handleAperture} InputProps={{ startAdornment: <InputAdornment position="start">F/</InputAdornment> ,type:"number" }} /></>
+        <TextField className={styles} label="镜头焦距" value={focal} onChange={handleFocal} InputProps={{ endAdornment: <InputAdornment position="start">mm</InputAdornment>, type: "number" }} />
+        <TextField className={styles} label="镜头光圈" value={aperture} onChange={handleAperture} InputProps={{ startAdornment: <InputAdornment position="start">F/</InputAdornment>, type: "number" }} /></>
 }

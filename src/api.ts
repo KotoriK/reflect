@@ -1,4 +1,4 @@
-export interface APIResult<ResultType>{
-    ok:boolean,
-    data:ResultType
-    }
+export interface APIResult<ResultType> {
+    ok: boolean,
+    data: ResultType
+}

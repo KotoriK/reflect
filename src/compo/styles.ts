@@ -40,7 +40,7 @@ export const useFooterStyle = makeStyles(theme => {
 })
 export function useColorScheme() {
     const [value, set] = useState(false)
-    const cb = useCallback((ev:MediaQueryListEvent) => {
+    const cb = useCallback((ev: MediaQueryListEvent) => {
         set(ev.matches)
     }, [])
     useEffect(() => {

@@ -19,10 +19,10 @@ export default function App({ Component, pageProps }) {
             type: useColorScheme() ? 'dark' : 'light',
             primary: {
                 main: '#1976d2',
-              },
-              secondary: {
+            },
+            secondary: {
                 main: '#40c4ff',
-              },
+            },
         }
     }))
     return <MuiThemeProvider theme={theme}>

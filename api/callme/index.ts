@@ -30,7 +30,7 @@ export default async function (req: VercelRequest, res: VercelResponse) {
     } else {
         data = `malform url. Expect string, but get ${typeof url}`
     }
-    res.setHeader("Content-Type","application/json; charset=utf-8")
+    res.setHeader("Content-Type", "application/json; charset=utf-8")
     res.setHeader("Cache-Control", "no-cache")
     res.send(JSON.stringify({
         ok: isOK, data

@@ -47,7 +47,7 @@ export default async function (req: VercelRequest, res: VercelResponse) {
                     }
                 }
                 res.setHeader("Cache-Control", "s-maxage=7200")
-                res.setHeader("Content-Type","application/json; charset=utf-8")
+                res.setHeader("Content-Type", "application/json; charset=utf-8")
                 data = JSON.stringify(data_obj)
             } else {
                 data = 'fetch failed:' + resp.status

@@ -192,7 +192,7 @@ export function OP_SensorSize({ className, value, onChange, showRealSizeSensor }
                 </List>
             </Grid>
         {showRealSizeSensor && <Grid lg item style={{ alignSelf: 'center' }}><RealSizeSensor size={value} /></Grid>}</>} */}
-        {(value != SENSOR_SIZES['']) && 
-        showRealSizeSensor && <Grid lg item style={{ alignSelf: 'center' }}><RealSizeSensor size={value} /></Grid>}
+        {(value != SENSOR_SIZES['']) &&
+            showRealSizeSensor && <Grid lg item style={{ alignSelf: 'center' }}><RealSizeSensor size={value} /></Grid>}
     </Grid>
 }

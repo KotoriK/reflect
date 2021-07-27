@@ -1,10 +1,10 @@
 {
-    "/efl":{
-        "name":"等效换算",
-        "description":"换算同一支镜头在不同底片格式下的等效焦段"
+    "/efl": {
+        "name": "等效换算",
+        "description": "换算同一支镜头在不同底片格式下的等效焦段"
     },
-    "/themecolor":{
-        "name":"主题颜色",
-        "description":"从同一个主题中提取不一样的颜色"
+    "/themecolor": {
+        "name": "主题颜色",
+        "description": "从同一个主题中提取不一样的颜色"
     }
 }
