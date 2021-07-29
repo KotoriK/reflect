@@ -33,6 +33,7 @@
     "next": "^11.0.1",
     "next-page-transitions": "^1.0.0-beta.2",
     "node-fetch": "^2.6.1",
+    "notistack": "^1.0.10",
     "palette": "github:KotoriK/palette",
     "promise-worker": "^2.0.1",
     "react": "^17.0.2",

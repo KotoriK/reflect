@@ -1,4 +1,4 @@
-import { Container, Divider, List, ListItem, makeStyles, Paper, Typography, useTheme, Grid, Switch, FormControlLabel, ListItemIcon, ListItemText, IconButton } from '@material-ui/core'
+import { Container, Divider, List, ListItem, makeStyles, Paper, Typography, useTheme, Grid, Switch, FormControlLabel, ListItemIcon, ListItemText, IconButton, Checkbox } from '@material-ui/core'
 import clsx from 'clsx';
 
 import { connect, Provider, useSelector } from 'react-redux'
@@ -15,6 +15,7 @@ import { useCallback, useEffect, useMemo } from 'react';
 import { useIntl } from 'react-intl';
 import { useFooterStyle, useGapStyle } from '../compo/styles';
 import useControlledValue from '../compo/controlledValue';
+import { SnackbarProvider, useSnackbar } from 'notistack';
 
 //icons
 import CropIcon from '@material-ui/icons/Crop';
@@ -25,7 +26,7 @@ import UndoIcon from '@material-ui/icons/Undo';
 interface EFLState {
     lens: Lens,
     sensors: Array<Sensor_Size>,
-    baseSensor: number
+    baseSensorIndex: number
 }
 type EFLStateAction = {
     type: 'lens',
@@ -64,8 +65,17 @@ const useStyles = makeStyles(theme => {
         }
     }
 })
-function EFLStateReducer(state: EFLState = { lens: { focal: 50, aperture: 1.4 }, sensors: [SENSOR_SIZES[''], SENSOR_SIZES[135]], baseSensor: 1 }, action: EFLStateAction): EFLState {
-    let { lens, sensors: _sensors, baseSensor } = state
+
+const defaultEFLState: EFLState = {
+    lens: {
+        focal: 50, aperture: 1.4
+    },
+    sensors: [SENSOR_SIZES[''], SENSOR_SIZES[135]],
+    baseSensorIndex: 1
+}
+
+function EFLStateReducer(state: EFLState = defaultEFLState, action: EFLStateAction): EFLState {
+    let { lens, sensors: _sensors, baseSensorIndex: baseSensor } = state
     let sensors = [..._sensors]
     switch (action.type) {
         case 'add_sensor':
@@ -93,7 +103,7 @@ function EFLStateReducer(state: EFLState = { lens: { focal: 50, aperture: 1.4 },
             break
         default: return state
     }
-    return { lens: lens, sensors, baseSensor }
+    return { lens: lens, sensors, baseSensorIndex: baseSensor }
 }
 function setLens(next: Lens): EFLStateAction {
     return {
@@ -129,7 +139,7 @@ function setBaseSensor(i: number): EFLStateAction {
         i
     }
 }
-const OP_SensorSize_Group_Connected = connect((state: StateWithHistory<EFLState>) => { return { sensors: state.present.sensors, baseSensor: state.present.baseSensor } }
+const OP_SensorSize_Group_Connected = connect((state: StateWithHistory<EFLState>) => { return { sensors: state.present.sensors, baseSensor: state.present.baseSensorIndex } }
     , dispatch => {
         return {
             addSensor: (data: Sensor_Size) => dispatch(addSensor(data)),
@@ -138,16 +148,34 @@ const OP_SensorSize_Group_Connected = connect((state: StateWithHistory<EFLState>
             clear: () => dispatch(clearSensors()),
             setBaseSensor: (i: number) => dispatch(setBaseSensor(i))
         }
-    })(function OP_SensorSize_Group_Connected({ showRealSizeSensor, baseSensor, sensors, addSensor, removeSensor, editSensor, clear }: {
+    })(function OP_SensorSize_Group_Connected({ showRealSizeSensor, baseSensor, sensors, addSensor, removeSensor, editSensor, clear, setBaseSensor }: {
         sensors: Sensor_Size[], baseSensor: number, addSensor: (data: Sensor_Size) => EFLStateAction,
         removeSensor: (i: number) => EFLStateAction, editSensor: (data: Sensor_Size, i: number) => EFLStateAction,
-        clear: () => EFLStateAction, showRealSizeSensor: boolean
+        clear: () => EFLStateAction, showRealSizeSensor: boolean,setBaseSensor: any
     }) {
         const styles = useStyles()
         return <>
-            {(sensors.length == 0 ? <ListItem><OP_SensorSize showRealSizeSensor={showRealSizeSensor} onChange={(data) => addSensor(data)}></OP_SensorSize></ListItem> : sensors.map((sensor, index) =>
-                <ListItem className={clsx(index == baseSensor && styles.baseSensor)} key={index}><OP_SensorSize showRealSizeSensor={showRealSizeSensor} value={sensor} onChange={(data) => editSensor(data, index)}></OP_SensorSize></ListItem>
-            ))}</>
+            {(sensors.length == 0 ? <ListItem>
+                <OP_SensorSize showRealSizeSensor={showRealSizeSensor} onChange={(data) => addSensor(data)}></OP_SensorSize>
+            </ListItem>
+                : sensors.map((sensor, index) => {
+                    const isBaseSensor = index == baseSensor
+                    const { enqueueSnackbar } = useSnackbar()
+                    const cb_setBaseSensor = useCallback(() => {
+                        if (sensor == SENSOR_SIZES['']) {
+                            //虽然下游不会报致命错误，但还是不应当设定为基准画幅
+                            enqueueSnackbar('不能将一个空画幅设为基准画幅。',{variant:'warning'})
+                        } else {
+                            setBaseSensor(index)
+                            enqueueSnackbar(`已设为基准画幅。`,{variant:'success'})
+                        }
+                    }, [index,sensor])
+                    return <ListItem className={clsx(isBaseSensor && styles.baseSensor)} key={index}>
+                        <Checkbox checked={isBaseSensor} onChange={cb_setBaseSensor} />
+                        <OP_SensorSize showRealSizeSensor={showRealSizeSensor} value={sensor} onChange={(data) => editSensor(data, index)} />
+                    </ListItem>
+                }
+                ))}</>
     })
 const OP_Lens_Connected = connect((state: StateWithHistory<EFLState>) => { return { lens: state.present.lens } }, dispatch => {
     return { setLens: (data: Lens) => dispatch(setLens(data)) }
@@ -197,7 +225,7 @@ function PrintResult({ baseSensor, cropFactDia, stopLost, sensor, lens, lens_equ
 }
 
 function useResults() {
-    const { sensors: _sensors, baseSensor: baseIndex, lens } = useSelector((state: StateWithHistory<EFLState>) => { const { sensors, baseSensor, lens } = state.present; return { sensors, baseSensor, lens } })
+    const { sensors: _sensors, baseSensor: baseIndex, lens } = useSelector((state: StateWithHistory<EFLState>) => { const { sensors, baseSensorIndex: baseSensor, lens } = state.present; return { sensors, baseSensor, lens } })
     const sensors = [..._sensors]
     const baseSensor = sensors.splice(baseIndex, 1)[0]
     const styles = useStyles()
@@ -253,68 +281,71 @@ const EFL = connect((state: StateWithHistory<EFLState>) => {
                 document.addEventListener('keypress', keyboardListener)
                 return () => document.removeEventListener('keypress', keyboardListener)
             }, [])
-            return <IntlProvider locale={'zh-CN'}
-                messages={defaultLocaleConfig}
-            >
-                <UtilContainer>
-                    <Typography variant="h4">等效换算</Typography>
-                    <Divider />
-                    <IconButton aria-label="Undo" color="primary" disabled={!canUndo} onClick={onUndo}>
-                        <UndoIcon />
-                    </IconButton>
-                    <IconButton aria-label="Redo" color="primary" disabled={!canRedo} onClick={onRedo}>
-                        <RedoIcon />
-                    </IconButton>
-                    <FormControlLabel
-                        control={
-                            <Switch
-                                checked={showRealSensor}
-                                onChange={setShowReal}
-                                color="primary"
-                            />
-                        }
-                        label="传感器实际大小预览"
-                        className={gapStyles.has_vertical_gap}
-                    />
-                    <Grid container spacing={2}>
-                        <Grid item sm={12} lg={6}>
-                            <Paper>
-                                <List>
-                                    <OP_SensorSize_Group_Connected showRealSizeSensor={showRealSensor} />
-                                    <OP_Lens_Connected />
-                                </List>
-                            </Paper>
-                        </Grid>
-                        {results.length == 0 ? null : <Grid item sm={12} lg={6}>
-                            <Paper>
-                                <Container>
-                                    <div className={gapStyles.vgap}></div>
-                                    <Typography variant="h5">结果</Typography>
-                                    <Divider />
+            return <SnackbarProvider maxSnack={3} anchorOrigin={{horizontal:'center',vertical:'top'}}>
+                <IntlProvider locale={'zh-CN'}
+                    messages={defaultLocaleConfig}
+                >
+                    <UtilContainer>
+                        <Typography variant="h4">等效换算</Typography>
+                        <Divider />
+                        <IconButton aria-label="Undo" color="primary" disabled={!canUndo} onClick={onUndo}>
+                            <UndoIcon />
+                        </IconButton>
+                        <IconButton aria-label="Redo" color="primary" disabled={!canRedo} onClick={onRedo}>
+                            <RedoIcon />
+                        </IconButton>
+                        <FormControlLabel
+                            control={
+                                <Switch
+                                    checked={showRealSensor}
+                                    onChange={setShowReal}
+                                    color="primary"
+                                />
+                            }
+                            label="传感器实际大小预览"
+                            className={gapStyles.has_vertical_gap}
+                        />
+                        <Grid container spacing={2}>
+                            <Grid item sm={12} lg={6}>
+                                <Paper>
                                     <List>
-                                        {results}
+                                        <OP_SensorSize_Group_Connected showRealSizeSensor={showRealSensor} />
+                                        <OP_Lens_Connected />
                                     </List>
-                                </Container>
-                            </Paper>
-                        </Grid>}
-                    </Grid>
-                    <Divider variant="fullWidth" className={gapStyles.has_vertical_gap} />
-                    <Typography variant='caption' component='div' className={footerStyles}>
-                        <strong>Reference</strong>
-                        <ul className={styles.ul}>
-                            <li>
-                                <Link href="https://en.wikipedia.org/wiki/Image_sensor_format">Image sensor format - Wikipedia</Link>
-                            </li>
-                            <li>
-                                <Link href="https://en.wikipedia.org/wiki/120_film">120 film - Wikipedia</Link>
-                            </li>
-                            <li>
-                                <Link href="https://en.wikipedia.org/wiki/Film_format">Film format - Wikipedia</Link>
-                            </li>
-                        </ul>
-                    </Typography>
-                </UtilContainer>
-            </IntlProvider >
+                                </Paper>
+                            </Grid>
+                            {results.length == 0 ? null : <Grid item sm={12} lg={6}>
+                                <Paper>
+                                    <Container>
+                                        <div className={gapStyles.vgap}></div>
+                                        <Typography variant="h5">结果</Typography>
+                                        <Divider />
+                                        <List>
+                                            {results}
+                                        </List>
+                                    </Container>
+                                </Paper>
+                            </Grid>}
+                        </Grid>
+                        <Divider variant="fullWidth" className={gapStyles.has_vertical_gap} />
+                        <Typography variant='caption' component='div' className={footerStyles}>
+                            <strong>Reference</strong>
+                            <ul className={styles.ul}>
+                                <li>
+                                    <Link href="https://en.wikipedia.org/wiki/Image_sensor_format">Image sensor format - Wikipedia</Link>
+                                </li>
+                                <li>
+                                    <Link href="https://en.wikipedia.org/wiki/120_film">120 film - Wikipedia</Link>
+                                </li>
+                                <li>
+                                    <Link href="https://en.wikipedia.org/wiki/Film_format">Film format - Wikipedia</Link>
+                                </li>
+                            </ul>
+                        </Typography>
+                    </UtilContainer>
+                </IntlProvider >
+            </SnackbarProvider>
+
         })
 const store = createStore(undoable(EFLStateReducer))
 export default function EFLPage() {
