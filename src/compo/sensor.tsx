@@ -1,9 +1,11 @@
-import { FormControl, InputLabel, Select, MenuItem, TextField, InputAdornment, Grid, List, ListItem, ListItemIcon, ListItemText } from "@material-ui/core"
+import { FormControl, InputLabel, Select, MenuItem, TextField, InputAdornment, Grid, List, ListItem, ListItemIcon, ListItemText, Checkbox } from "@material-ui/core"
 import React, { useState, useCallback, ChangeEvent, ReactNode } from "react"
 import { useIntl } from "react-intl"
 import { useFormCtrlStyle } from "./styles"
 import clsx from 'clsx'
 import { RealSizeSensor } from "./RealSizeSensor"
+import { index } from "cheerio/lib/api/traversing"
+import { useSnackbar } from "notistack"
 
 export const SENSOR_SIZES = {
     "8x10": {
@@ -166,7 +168,7 @@ function OP_SensorSize_Custom({ className, onChange, value = { width: 0, height:
         <TextField className={className} label="宽" value={width} onChange={handleWidth} InputProps={{ endAdornment: <InputAdornment position="start">mm</InputAdornment>, readOnly: readonly }} />
         <TextField className={className} label="高" value={height} onChange={handleHeight} InputProps={{ endAdornment: <InputAdornment position="start">mm</InputAdornment>, readOnly: readonly }} /></>
 }
-export function OP_SensorSize({ className, value, onChange, showRealSizeSensor }: { className?: string, value?: Sensor_Size, onChange: (data: Sensor_Size) => void, showRealSizeSensor: boolean }) {
+export function OP_SensorSize({ className, value, onChange, showRealSizeSensor,setBaseSensor,index,isBaseSensor,baseSensorClassName }: { className?: string, value: Sensor_Size, onChange: (data: Sensor_Size) => void, showRealSizeSensor: boolean,setBaseSensor:(index:number)=>void,index:number,isBaseSensor:boolean,baseSensorClassName:string }) {
     const intl = useIntl()
     const [mode_custom, setMode] = useState(false)
     const styles = clsx(className, useFormCtrlStyle().formControl)
@@ -174,7 +176,20 @@ export function OP_SensorSize({ className, value, onChange, showRealSizeSensor }
         setMode(ev.target.value ? false : true);
         onChange(ev.target.value as any)
     }, [])
-    return <Grid container>
+    const { enqueueSnackbar } = useSnackbar()
+    const cb_setBaseSensor = useCallback(() => {
+        if (value == SENSOR_SIZES['']) {
+            //虽然下游不会报致命错误，但还是不应当设定为基准画幅
+            enqueueSnackbar('不能将一个空画幅设为基准画幅。', { variant: 'warning' })
+        } else {
+            setBaseSensor(index)
+            enqueueSnackbar(`已设为基准画幅。`, { variant: 'success' })
+        }
+    }, [index, value])
+    return <ListItem className={clsx(isBaseSensor && baseSensorClassName)} key={index}>
+                            <Checkbox checked={isBaseSensor} onChange={cb_setBaseSensor} />
+
+    <Grid container>
         <Grid lg item>
             <OptionSelect onChange={handleChange} value={value}
                 className={styles} name={"传感器尺寸"} options={Object.entries(SENSOR_SIZES)
@@ -198,4 +213,5 @@ export function OP_SensorSize({ className, value, onChange, showRealSizeSensor }
         {(value != SENSOR_SIZES['']) &&
             showRealSizeSensor && <Grid lg item style={{ alignSelf: 'center' }}><RealSizeSensor size={value} /></Grid>}
     </Grid>
+    </ListItem>
 }

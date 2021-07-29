@@ -22,6 +22,8 @@ import CropIcon from '@material-ui/icons/Crop';
 import ExposureIcon from '@material-ui/icons/Exposure';
 import RedoIcon from '@material-ui/icons/Redo';
 import UndoIcon from '@material-ui/icons/Undo';
+import AddIcon from '@material-ui/icons/Add';
+import RemoveIcon from '@material-ui/icons/Remove';
 
 interface EFLState {
     lens: Lens,
@@ -75,7 +77,7 @@ const defaultEFLState: EFLState = {
 }
 
 function EFLStateReducer(state: EFLState = defaultEFLState, action: EFLStateAction): EFLState {
-    let { lens, sensors: _sensors, baseSensorIndex: baseSensor } = state
+    let { lens, sensors: _sensors, baseSensorIndex } = state
     let sensors = [..._sensors]
     switch (action.type) {
         case 'add_sensor':
@@ -91,19 +93,23 @@ function EFLStateReducer(state: EFLState = defaultEFLState, action: EFLStateActi
             lens = action.data
             break
         case 'remove_sensor':
-            sensors.splice(action.i)
-            break
+            {
+                const { i } = action
+                if (baseSensorIndex == i) baseSensorIndex = (i - 1) >= 0 ? (i - 1) : 0
+                sensors.splice(i)
+                break
+            }
         case 'base_sensor':
             const { i } = action
             if (i >= 0 && i < sensors.length) {
-                baseSensor = i
+                baseSensorIndex = i
             } else {
                 return state
             }
             break
         default: return state
     }
-    return { lens: lens, sensors, baseSensorIndex: baseSensor }
+    return { lens: lens, sensors, baseSensorIndex: baseSensorIndex }
 }
 function setLens(next: Lens): EFLStateAction {
     return {
@@ -142,40 +148,26 @@ function setBaseSensor(i: number): EFLStateAction {
 const OP_SensorSize_Group_Connected = connect((state: StateWithHistory<EFLState>) => { return { sensors: state.present.sensors, baseSensor: state.present.baseSensorIndex } }
     , dispatch => {
         return {
-            addSensor: (data: Sensor_Size) => dispatch(addSensor(data)),
-            removeSensor: (i: number) => dispatch(removeSensor(i)),
             editSensor: (data: Sensor_Size, i: number) => dispatch(editSensor(data, i)),
-            clear: () => dispatch(clearSensors()),
             setBaseSensor: (i: number) => dispatch(setBaseSensor(i))
         }
-    })(function OP_SensorSize_Group_Connected({ showRealSizeSensor, baseSensor, sensors, addSensor, removeSensor, editSensor, clear, setBaseSensor }: {
-        sensors: Sensor_Size[], baseSensor: number, addSensor: (data: Sensor_Size) => EFLStateAction,
-        removeSensor: (i: number) => EFLStateAction, editSensor: (data: Sensor_Size, i: number) => EFLStateAction,
-        clear: () => EFLStateAction, showRealSizeSensor: boolean,setBaseSensor: any
+    })(function OP_SensorSize_Group_Connected({ showRealSizeSensor, baseSensor, sensors, editSensor, setBaseSensor }: {
+        sensors: Sensor_Size[], baseSensor: number, editSensor: (data: Sensor_Size, i: number) => EFLStateAction, showRealSizeSensor: boolean, setBaseSensor: any
     }) {
         const styles = useStyles()
         return <>
-            {(sensors.length == 0 ? <ListItem>
-                <OP_SensorSize showRealSizeSensor={showRealSizeSensor} onChange={(data) => addSensor(data)}></OP_SensorSize>
-            </ListItem>
-                : sensors.map((sensor, index) => {
-                    const isBaseSensor = index == baseSensor
-                    const { enqueueSnackbar } = useSnackbar()
-                    const cb_setBaseSensor = useCallback(() => {
-                        if (sensor == SENSOR_SIZES['']) {
-                            //虽然下游不会报致命错误，但还是不应当设定为基准画幅
-                            enqueueSnackbar('不能将一个空画幅设为基准画幅。',{variant:'warning'})
-                        } else {
-                            setBaseSensor(index)
-                            enqueueSnackbar(`已设为基准画幅。`,{variant:'success'})
-                        }
-                    }, [index,sensor])
-                    return <ListItem className={clsx(isBaseSensor && styles.baseSensor)} key={index}>
-                        <Checkbox checked={isBaseSensor} onChange={cb_setBaseSensor} />
-                        <OP_SensorSize showRealSizeSensor={showRealSizeSensor} value={sensor} onChange={(data) => editSensor(data, index)} />
-                    </ListItem>
-                }
-                ))}</>
+            {sensors.map((sensor, index) => {
+                const isBaseSensor = index == baseSensor
+                return <OP_SensorSize key={index}
+                    showRealSizeSensor={showRealSizeSensor}
+                    value={sensor}
+                    onChange={(data) => editSensor(data, index)}
+                    index={index}
+                    setBaseSensor={setBaseSensor}
+                    isBaseSensor={isBaseSensor}
+                    baseSensorClassName={styles.baseSensor} />
+            }
+            )}</>
     })
 const OP_Lens_Connected = connect((state: StateWithHistory<EFLState>) => { return { lens: state.present.lens } }, dispatch => {
     return { setLens: (data: Lens) => dispatch(setLens(data)) }
@@ -244,6 +236,29 @@ function useResults() {
             </ListItem>
         })
 }
+const AddRemoveSensor = connect((state: StateWithHistory<EFLState>) => { return { sensors: state.present.sensors } }, dispatch => {
+    return {
+        addSensor: (data: Sensor_Size) => dispatch(addSensor(data)),
+        removeSensor: (i: number) => dispatch(removeSensor(i)),
+    }
+})(function AddRemoveSensor({ sensors, addSensor, removeSensor }: any) {
+    const canAdd = !(sensors.length < 11)
+    const canRemove = !(sensors.length > 2)
+    const onAdd = useCallback(() => {
+        addSensor(SENSOR_SIZES[''])
+    }, [])
+    const onRemove = useCallback(() => {
+        removeSensor(sensors.length - 1)
+    }, [sensors])
+    return <>
+        <IconButton aria-label="Add" color="primary" disabled={canAdd} onClick={onAdd}>
+            <AddIcon />
+        </IconButton>
+        <IconButton aria-label="Remove" color="primary" disabled={canRemove} onClick={onRemove}>
+            <RemoveIcon />
+        </IconButton>
+    </>
+})
 const EFL = connect((state: StateWithHistory<EFLState>) => {
     return {
         canUndo: state.past.length > 0,
@@ -253,7 +268,7 @@ const EFL = connect((state: StateWithHistory<EFLState>) => {
     dispatch => {
         return {
             onUndo: () => dispatch(UndoActionCreators.undo()),
-            onRedo: () => dispatch(UndoActionCreators.redo())
+            onRedo: () => dispatch(UndoActionCreators.redo()),
         }
     })(
         function EFL({ canUndo, canRedo, onUndo, onRedo }: { canUndo: boolean, canRedo: boolean, onUndo: () => Action<any>, onRedo: () => Action<any> }) {
@@ -281,7 +296,7 @@ const EFL = connect((state: StateWithHistory<EFLState>) => {
                 document.addEventListener('keypress', keyboardListener)
                 return () => document.removeEventListener('keypress', keyboardListener)
             }, [])
-            return <SnackbarProvider maxSnack={3} anchorOrigin={{horizontal:'center',vertical:'top'}}>
+            return <SnackbarProvider maxSnack={3} anchorOrigin={{ horizontal: 'center', vertical: 'top' }}>
                 <IntlProvider locale={'zh-CN'}
                     messages={defaultLocaleConfig}
                 >
@@ -294,6 +309,7 @@ const EFL = connect((state: StateWithHistory<EFLState>) => {
                         <IconButton aria-label="Redo" color="primary" disabled={!canRedo} onClick={onRedo}>
                             <RedoIcon />
                         </IconButton>
+                        <AddRemoveSensor />
                         <FormControlLabel
                             control={
                                 <Switch
@@ -329,7 +345,7 @@ const EFL = connect((state: StateWithHistory<EFLState>) => {
                         </Grid>
                         <Divider variant="fullWidth" className={gapStyles.has_vertical_gap} />
                         <Typography variant='caption' component='div' className={footerStyles}>
-                            <strong>Reference</strong>
+                            <strong>参考资料 Reference</strong>
                             <ul className={styles.ul}>
                                 <li>
                                     <Link href="https://en.wikipedia.org/wiki/Image_sensor_format">Image sensor format - Wikipedia</Link>
