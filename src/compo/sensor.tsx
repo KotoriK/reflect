@@ -101,7 +101,7 @@ export const SENSOR_SIZES = {
 
     /* , custom: undefined */
 }
-export const Size2Name = new Map(Object.entries(SENSOR_SIZES).map(([name, size]) => [size, name]))
+export const Size2Name = new Map(Object.entries(SENSOR_SIZES).map(([name, size]) => [getKeyOfSensorSize(size), name]))
 export function getNameId(name: string) {
     return `sensor_size.${name}`
 }
