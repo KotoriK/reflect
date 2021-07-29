@@ -7,7 +7,7 @@ import undoable, { StateWithHistory, ActionCreators as UndoActionCreators } from
 import { getLensName, Lens, OP_Lens } from '../compo/lens';
 import { IntlProvider } from 'react-intl'
 import defaultLocaleConfig from '../locale'
-import { OP_SensorSize, SENSOR_SIZES, Sensor_Size, Size2Name, getStopLost, getCropFactorDia, getNameId, getKeyOfSensorSize } from '../compo/sensor'
+import { OP_SensorSize, SENSOR_SIZES, Sensor_Size, Size2Name, getStopLost, getCropFactorDia, getNameId, getKeyOfSensorSize, getCropFactorWidth } from '../compo/sensor'
 import UtilContainer from '../container/util';
 import Link from 'next/link'
 //react hooks
@@ -155,11 +155,16 @@ const OP_Lens_Connected = connect((state: StateWithHistory<EFLState>) => { retur
     return <ListItem><OP_Lens lens={lens} onChange={setLens} /></ListItem>
 })
 interface ResultProp {
-    baseSensor: Sensor_Size, cropFactDia: number, stopLost: number, sensor: Sensor_Size
-    , lens_35mm: Lens, lens_sameEffect: Lens
+    baseSensor: Sensor_Size, 
+    cropFactDia: number, 
+    cropFactWidth:number,
+    stopLost: number, 
+    sensor: Sensor_Size, 
+    lens_35mm: Lens, 
+    lens_sameEffect: Lens
 }
 const SensorHighlight = (caption: string) => <span style={{ color: useTheme().palette.primary.main }}>{caption}</span>
-function Result({ baseSensor, cropFactDia, stopLost, sensor, lens_35mm, lens_sameEffect }: ResultProp) {
+function Result({ baseSensor, cropFactDia, stopLost, sensor, lens_35mm, lens_sameEffect,cropFactWidth }: ResultProp) {
     const intl = useIntl()
     const baseSensorName = useMemo(() => intl.formatMessage({ id: getNameId(Size2Name.get(baseSensor)) }), [baseSensor])
     const sensorName = useMemo(() => intl.formatMessage({ id: getNameId(Size2Name.get(sensor)) }), [sensor])
@@ -171,7 +176,11 @@ function Result({ baseSensor, cropFactDia, stopLost, sensor, lens_35mm, lens_sam
         <List>
             <ListItem>
                 <ListItemIcon><CropIcon /></ListItemIcon>
-                <ListItemText primary="裁切系数" secondary={cropFactDia.toFixed(3)} />
+                <ListItemText primary="裁切系数（对角线）" secondary={cropFactDia.toFixed(3)} />
+            </ListItem>
+            <ListItem>
+                <ListItemIcon><CropIcon /></ListItemIcon>
+                <ListItemText primary="裁切系数（宽度）" secondary={cropFactWidth.toFixed(3)} />
             </ListItem>
             <ListItem>
                 <ListItemIcon><ExposureIcon /></ListItemIcon>
@@ -196,9 +205,10 @@ function useResults() {
         .filter((sensor) => sensor != SENSOR_SIZES[''])
         .map((sensor, index) => {
             const cropFactDia = getCropFactorDia(sensor, baseSensor)
+            const cropFactWidth = getCropFactorWidth(sensor,baseSensor)
             return <ListItem key={`r${index}`} className={styles.listItem}>
                 <Result stopLost={getStopLost(sensor, baseSensor)}
-                    cropFactDia={cropFactDia}
+                    cropFactDia={cropFactDia} cropFactWidth={cropFactWidth}
                     baseSensor={baseSensor} sensor={sensor} lens_35mm={lens} lens_sameEffect={{ focal: (lens.focal * cropFactDia), aperture: (lens.aperture * cropFactDia) }} />
             </ListItem>
         })

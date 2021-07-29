@@ -111,6 +111,9 @@ export function getCropFactorDia(a: Sensor_Size, b: Sensor_Size) {
     //https://en.wikipedia.org/wiki/Image_sensor_format#cite_note-34
     return getSensorDiagonalLength(b) / getSensorDiagonalLength(a)
 }
+export function getCropFactorWidth(a: Sensor_Size, b: Sensor_Size) {
+    return b.width / a.width
+}
 export function getSensorArea(sensor: Sensor_Size) {
     const { width, height } = sensor
     return width * height
