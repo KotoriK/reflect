@@ -155,16 +155,17 @@ const OP_Lens_Connected = connect((state: StateWithHistory<EFLState>) => { retur
     return <ListItem><OP_Lens lens={lens} onChange={setLens} /></ListItem>
 })
 interface ResultProp {
-    baseSensor: Sensor_Size, 
-    cropFactDia: number, 
-    cropFactWidth:number,
-    stopLost: number, 
-    sensor: Sensor_Size, 
-    lens_35mm: Lens, 
-    lens_sameEffect: Lens
+    baseSensor: Sensor_Size,
+    cropFactDia: number,
+    cropFactWidth: number,
+    stopLost: number,
+    sensor: Sensor_Size,
+    lens: Lens,
+    lens_equivalent: Lens
+    lens_equivalent_widthCrop: Lens
 }
 const SensorHighlight = (caption: string) => <span style={{ color: useTheme().palette.primary.main }}>{caption}</span>
-function Result({ baseSensor, cropFactDia, stopLost, sensor, lens_35mm, lens_sameEffect,cropFactWidth }: ResultProp) {
+function PrintResult({ baseSensor, cropFactDia, stopLost, sensor, lens, lens_equivalent, cropFactWidth, lens_equivalent_widthCrop }: ResultProp) {
     const intl = useIntl()
     const baseSensorName = useMemo(() => intl.formatMessage({ id: getNameId(Size2Name.get(baseSensor)) }), [baseSensor])
     const sensorName = useMemo(() => intl.formatMessage({ id: getNameId(Size2Name.get(sensor)) }), [sensor])
@@ -187,12 +188,11 @@ function Result({ baseSensor, cropFactDia, stopLost, sensor, lens_35mm, lens_sam
                 <ListItemText primary="进光量变化" secondary={stopLost.toFixed(3)} />
             </ListItem>
         </List>
-        <Typography component="p" variant="body2">{`您选择的 ${getLensName(lens_35mm)} 在`}
-            {SensorHighlight(sensorName)}
-            {'上等效为'}
+        <Typography component="p" variant="body2">{SensorHighlight(sensorName)}{`上的${getLensName(lens)} `}
+            {'等效为'}
             {SensorHighlight(baseSensorName)}
-            {`上的 ${getLensName(lens_sameEffect)}`}</Typography>
-        <Typography variant="caption" color="textSecondary"><strong>等效 </strong>是指视角与景深等效，不考虑纵横比变化。</Typography>
+            {`上的 ${getLensName(lens_equivalent)}(对角线)，${getLensName(lens_equivalent_widthCrop)}(宽度)`}</Typography>
+        <Typography variant="caption" color="textSecondary"><strong>等效 </strong>是指视角与景深等效，不考虑纵横比变化。计算的光圈值仅考虑等效景深，进光量变化未考虑。</Typography>
     </>
 }
 
@@ -205,11 +205,14 @@ function useResults() {
         .filter((sensor) => sensor != SENSOR_SIZES[''])
         .map((sensor, index) => {
             const cropFactDia = getCropFactorDia(sensor, baseSensor)
-            const cropFactWidth = getCropFactorWidth(sensor,baseSensor)
+            const cropFactWidth = getCropFactorWidth(sensor, baseSensor)
             return <ListItem key={`r${index}`} className={styles.listItem}>
-                <Result stopLost={getStopLost(sensor, baseSensor)}
+                <PrintResult stopLost={getStopLost(sensor, baseSensor)}
                     cropFactDia={cropFactDia} cropFactWidth={cropFactWidth}
-                    baseSensor={baseSensor} sensor={sensor} lens_35mm={lens} lens_sameEffect={{ focal: (lens.focal * cropFactDia), aperture: (lens.aperture * cropFactDia) }} />
+                    baseSensor={baseSensor} sensor={sensor} lens={lens}
+                    lens_equivalent={{ focal: (lens.focal * cropFactDia), aperture: (lens.aperture * cropFactDia) }}
+                    lens_equivalent_widthCrop={{ focal: (lens.focal * cropFactWidth), aperture: (lens.aperture * cropFactWidth) }}
+                />
             </ListItem>
         })
 }
