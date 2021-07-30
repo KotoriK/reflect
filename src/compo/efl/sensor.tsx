@@ -183,7 +183,7 @@ export function OP_SensorSize({ className, value, onChange, showRealSizeSensor, 
             enqueueSnackbar('不能将一个空画幅设为基准画幅。', { variant: 'warning' })
         } else {
             setBaseSensor(index)
-            enqueueSnackbar(`已设为基准画幅。`, { variant: 'success' })
+            enqueueSnackbar(`已将${intl.formatMessage({id:getNameId(Size2Name.get(getKeyOfSensorSize(value)))})}设为基准画幅。`, { variant: 'success' })
         }
     }, [index, value])
     return <ListItem className={clsx(isBaseSensor && baseSensorClassName)} key={index}>
