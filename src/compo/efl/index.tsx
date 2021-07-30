@@ -16,7 +16,7 @@ import ExposureIcon from '@material-ui/icons/Exposure';
 import AddIcon from '@material-ui/icons/Add';
 import RemoveIcon from '@material-ui/icons/Remove';
 import { useRouter } from 'next/router';
-import { useGapStyle } from './styles';
+import { useGapStyle } from '../styles';
 
 export const EFL_RESULT_KEY = 'efl_result'
 export interface EFLState {

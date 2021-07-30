@@ -1,10 +1,9 @@
-import { FormControl, InputLabel, Select, MenuItem, TextField, InputAdornment, Grid, List, ListItem, ListItemIcon, ListItemText, Checkbox } from "@material-ui/core"
-import React, { useState, useCallback, ChangeEvent, ReactNode } from "react"
+import { FormControl, InputLabel, Select, MenuItem, TextField, InputAdornment, Grid, ListItem, Checkbox } from "@material-ui/core"
+import { useState, useCallback, ChangeEvent, ReactNode } from "react"
 import { useIntl } from "react-intl"
-import { useFormCtrlStyle } from "./styles"
+import { useFormCtrlStyle } from "../styles"
 import clsx from 'clsx'
 import { RealSizeSensor } from "./RealSizeSensor"
-import { index } from "cheerio/lib/api/traversing"
 import { useSnackbar } from "notistack"
 
 export const SENSOR_SIZES = {
@@ -97,7 +96,8 @@ export const SENSOR_SIZES = {
     },
     '1/3inch': {
         width: 4.8, height: 3.6
-    }, '': { width: 0, height: 0 }
+    }, 
+    '': { width: 0, height: 0 }
 
     /* , custom: undefined */
 }
@@ -168,7 +168,7 @@ function OP_SensorSize_Custom({ className, onChange, value = { width: 0, height:
         <TextField className={className} label="宽" value={width} onChange={handleWidth} InputProps={{ endAdornment: <InputAdornment position="start">mm</InputAdornment>, readOnly: readonly }} />
         <TextField className={className} label="高" value={height} onChange={handleHeight} InputProps={{ endAdornment: <InputAdornment position="start">mm</InputAdornment>, readOnly: readonly }} /></>
 }
-export function OP_SensorSize({ className, value, onChange, showRealSizeSensor,setBaseSensor,index,isBaseSensor,baseSensorClassName }: { className?: string, value: Sensor_Size, onChange: (data: Sensor_Size) => void, showRealSizeSensor: boolean,setBaseSensor:(index:number)=>void,index:number,isBaseSensor:boolean,baseSensorClassName:string }) {
+export function OP_SensorSize({ className, value, onChange, showRealSizeSensor, setBaseSensor, index, isBaseSensor, baseSensorClassName }: { className?: string, value: Sensor_Size, onChange: (data: Sensor_Size) => void, showRealSizeSensor: boolean, setBaseSensor: (index: number) => void, index: number, isBaseSensor: boolean, baseSensorClassName: string }) {
     const intl = useIntl()
     const [mode_custom, setMode] = useState(false)
     const styles = clsx(className, useFormCtrlStyle().formControl)
@@ -187,18 +187,18 @@ export function OP_SensorSize({ className, value, onChange, showRealSizeSensor,s
         }
     }, [index, value])
     return <ListItem className={clsx(isBaseSensor && baseSensorClassName)} key={index}>
-                            <Checkbox checked={isBaseSensor} onChange={cb_setBaseSensor} />
+        <Checkbox checked={isBaseSensor} onChange={cb_setBaseSensor} />
 
-    <Grid container>
-        <Grid lg item>
-            <OptionSelect onChange={handleChange} value={value}
-                className={styles} name={"传感器尺寸"} options={Object.entries(SENSOR_SIZES)
-                    .map(([name, size]) => [size, intl.formatMessage({ id: getNameId(name) })]
-                    )} />
-            <OP_SensorSize_Custom className={styles} onChange={onChange} value={value} readonly={!mode_custom} />
+        <Grid container>
+            <Grid lg item>
+                <OptionSelect onChange={handleChange} value={value}
+                    className={styles} name={"画幅尺寸"} options={Object.entries(SENSOR_SIZES)
+                        .map(([name, size]) => [size, intl.formatMessage({ id: getNameId(name) })]
+                        )} />
+                <OP_SensorSize_Custom className={styles} onChange={onChange} value={value} readonly={!mode_custom} />
 
-        </Grid>
-        {/* {(value != SENSOR_SIZES['']) && <>
+            </Grid>
+            {/* {(value != SENSOR_SIZES['']) && <>
             <Grid lg item>
                 <List>
                     <ListItem>
@@ -210,8 +210,8 @@ export function OP_SensorSize({ className, value, onChange, showRealSizeSensor,s
                 </List>
             </Grid>
         {showRealSizeSensor && <Grid lg item style={{ alignSelf: 'center' }}><RealSizeSensor size={value} /></Grid>}</>} */}
-        {(value != SENSOR_SIZES['']) &&
-            showRealSizeSensor && <Grid lg item style={{ alignSelf: 'center' }}><RealSizeSensor size={value} /></Grid>}
-    </Grid>
+            {(value != SENSOR_SIZES['']) &&
+                showRealSizeSensor && <Grid lg item style={{ alignSelf: 'center' }}><RealSizeSensor size={value} /></Grid>}
+        </Grid>
     </ListItem>
 }

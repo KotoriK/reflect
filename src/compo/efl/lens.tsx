@@ -1,7 +1,7 @@
 import { InputAdornment, TextField } from "@material-ui/core"
 import clsx from "clsx"
 import { useCallback, ChangeEvent } from "react"
-import { useFormCtrlStyle } from "./styles"
+import { useFormCtrlStyle } from "../styles"
 
 export interface Lens {
     focal: number,

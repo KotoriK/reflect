@@ -73,7 +73,7 @@ const EFL = connect((state: StateWithHistory<EFLState>) => {
                                     color="primary"
                                 />
                             }
-                            label="传感器实际大小预览"
+                            label="画幅实际大小预览"
                             className={gapStyles.has_vertical_gap}
                         />
                         <Grid container spacing={2}>
