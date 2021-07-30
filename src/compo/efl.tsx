@@ -255,8 +255,9 @@ export const EFLResultContainer = ({ sensors, baseSensor, lens }: EFLResultConta
 }
 export const EFLResult = () => {
     const state: EFLState = useSelector((state: StateWithHistory<EFLState>) => state.present)
-    const { sensors, lens, baseSensorIndex } = state
-    const baseSensor = [...sensors].splice(baseSensorIndex, 1)[0]
+    const { sensors:_sensors, lens, baseSensorIndex } = state
+    const sensors = [..._sensors] 
+    const baseSensor = sensors.splice(baseSensorIndex, 1)[0]
     const sensors_Filled = sensors.filter((sensor) => sensor != SENSOR_SIZES[''])
     const gapStyles = useGapStyle()
     const router = useRouter()
@@ -265,7 +266,7 @@ export const EFLResult = () => {
         router.push('/efl/print')
     }
     return <>
-        {sensors_Filled.length > 1 ? <Grid item sm={12} lg={6}>
+        {sensors_Filled.length > 0 ? <Grid item sm={12} lg={6}>
             <Paper>
                 <Container>
                     <div className={gapStyles.vgap}></div>
