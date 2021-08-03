@@ -1,5 +1,5 @@
 import { Input, Button, Container, Grid, makeStyles, Typography, Divider, Card, Slider, Switch, FormControlLabel, CircularProgress, Fade } from '@material-ui/core'
-import { ChangeEventHandler, useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { createStyles } from '@material-ui/core'
 import { readImage, KMeansResult, readImageDownsampling, normalizeRGBA, rgbaToHSLA, sortHSL } from 'palette'
 import GitHubIcon from '@material-ui/icons/GitHub';
@@ -11,10 +11,12 @@ import { useGapStyle, useFooterStyle } from '../compo/styles';
 import useControlledValue from '../compo/controlledValue'
 import clsx from 'clsx';
 import Link from 'next/link'
+import { useUploadImage } from '../compo/image';
+import { mapRangeToSliderProp } from '../utils';
 function useThemeColorWorker() {
     const promiseWorker = useRef<PromiseWorker>()
     useEffect(() => {
-        const worker = new Worker(new URL('../ThemeColorWorker.ts', import.meta.url))
+        const worker = new Worker(new URL('../worker/ThemeColorWorker.ts', import.meta.url))
         promiseWorker.current = new PromiseWorker(worker)
         return () => {
             worker.terminate()
@@ -22,7 +24,7 @@ function useThemeColorWorker() {
     }, [])
     return promiseWorker.current
 }
-const useStyles = makeStyles((theme) => createStyles({
+export const useStyles = makeStyles((theme) => createStyles({
     "color": {
         height: '3vh',
         width: "3vh"
@@ -43,16 +45,15 @@ const useStyles = makeStyles((theme) => createStyles({
 const defaultKSetting = {
     k: 3, iteration: 20
 }
-const _mapRange = value => { return { value, label: value } }
 const KMeansSetting_k_range = [1, 5, 10]
 const KMeansSetting_iteration_range = [5, 100, 200]
-const KMeansSetting_k_marks = KMeansSetting_k_range.map(_mapRange)
-const KMeansSetting_iteration_marks = KMeansSetting_iteration_range.map(_mapRange)
+const KMeansSetting_k_Prop = mapRangeToSliderProp(KMeansSetting_k_range)
+const KMeansSetting_iteration_Prop = mapRangeToSliderProp(KMeansSetting_iteration_range)
 
 type ThemeColorStateResult = Pick<KMeansResult, 'iterate_time' | 'cluster_center' | 'fit_thresold' | 'size'> & { label: string[] }
 
 export default function ThemeColor() {
-    const [currentImageUrl, setImageBlobUrl] = useState<string>('')
+    const [currentImageUrl, changeImage] = useUploadImage()
     const [result, setResult] = useState<ThemeColorStateResult>()
     const [doDownSample, setDoDownSample] = useControlledValue(true)
     const [kMeansSetting_k, setKMeansSetting_k] = useControlledValue(defaultKSetting.k)
@@ -60,15 +61,6 @@ export default function ThemeColor() {
     const refImageElement = useRef<HTMLImageElement>()
     const themeColorWorker = useThemeColorWorker()
     const [inProgress, setInProgress] = useState(false)
-    const changeImage = useCallback<ChangeEventHandler<HTMLInputElement>>(
-        async (e) => {
-            const files = e.target.files
-            if (files && files.length > 0) {
-                const buf = new Blob([await files[0].arrayBuffer()])
-                if (currentImageUrl) URL.revokeObjectURL(currentImageUrl)
-                setImageBlobUrl(URL.createObjectURL(buf))
-            }
-        }, [])
     const execute = useCallback(async () => {
         const { current } = refImageElement
         const data = doDownSample ? readImageDownsampling(current, 10 * 1000) : readImage(current)
@@ -139,12 +131,10 @@ export default function ThemeColor() {
                             <Typography component="span" id="label-iteration" variant="subtitle1">迭代次数:</Typography>
                             <Slider
                                 step={1}
-                                min={KMeansSetting_iteration_range[0]}
-                                max={KMeansSetting_iteration_range[KMeansSetting_iteration_range.length - 1]}
+                                {...KMeansSetting_iteration_Prop}
                                 value={kMeansSetting_iteration}
                                 aria-labelledby="label-iteration"
                                 valueLabelDisplay="auto"
-                                marks={KMeansSetting_iteration_marks}
                                 onChange={setKMeansSetting_iteration}
                             ></Slider>
                         </span>
@@ -152,13 +142,11 @@ export default function ThemeColor() {
                             <Typography component="span" id="label-k" variant="subtitle1">类的个数(k)</Typography>
                             <Slider
                                 step={1}
-                                min={KMeansSetting_k_range[0]}
-                                max={KMeansSetting_k_range[KMeansSetting_k_range.length - 1]}
                                 value={kMeansSetting_k}
                                 aria-labelledby="label-k"
                                 valueLabelDisplay="auto"
-                                marks={KMeansSetting_k_marks}
                                 onChange={setKMeansSetting_k}
+                                {...KMeansSetting_k_Prop}
                             ></Slider>
                         </span>
                         <FormControlLabel
