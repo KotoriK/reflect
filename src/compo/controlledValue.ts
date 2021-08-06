@@ -5,10 +5,10 @@ import { useState, useCallback } from "react"
  * @param initialValue 
  * @returns 
  */
-export default function useControlledValue<T>(initialValue?: T) {
+export default function useControlledValue<T>(initialValue?: T): [T, (_: any, next: T) => void] {
     const [value, set] = useState(initialValue)
     const cb = useCallback((_, next: T) => {
         set(next)
     }, [])
-    return [value, cb] as [T, (_: any, next: T) => void]
+    return [value, cb]
 }

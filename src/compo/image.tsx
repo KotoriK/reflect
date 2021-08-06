@@ -2,6 +2,7 @@ import { useState, useCallback, ChangeEventHandler } from "react"
 
 export function useUploadImage(){
     const [currentImageUrl, setImageBlobUrl] = useState<string>('')
+export function useUploadImage(): [string, (e:{target:{files:FileList}})=>void] {
     const changeImage = useCallback(
         async (e) => {
             const files = e.target.files
@@ -11,5 +12,5 @@ export function useUploadImage(){
                 setImageBlobUrl(URL.createObjectURL(buf))
             }
         }, [])
-        return [currentImageUrl,changeImage] as [string,ChangeEventHandler<HTMLInputElement>]
+    return [currentImageUrl, changeImage]
 }
