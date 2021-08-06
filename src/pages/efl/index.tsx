@@ -15,6 +15,7 @@ import UndoIcon from '@material-ui/icons/Undo';
 import { Divider, FormControlLabel, Grid, IconButton, List, Paper, Switch, Typography, useTheme } from '@material-ui/core'
 import { useEffect, useCallback } from 'react'
 import { AddRemoveSensor, EFLResult, EFLState, EFLStateReducer, OP_Lens_Connected, OP_SensorSize_Group_Connected, useEFLStyles } from '../../compo/efl'
+import { SnackBarProviderProps } from '../../const'
 const EFL = connect((state: StateWithHistory<EFLState>) => {
     return {
         canUndo: state.past.length > 0,
@@ -51,7 +52,7 @@ const EFL = connect((state: StateWithHistory<EFLState>) => {
                 document.addEventListener('keypress', keyboardListener)
                 return () => document.removeEventListener('keypress', keyboardListener)
             }, [])
-            return <SnackbarProvider maxSnack={3} anchorOrigin={{ horizontal: 'center', vertical: 'top' }}>
+            return <SnackbarProvider {...SnackBarProviderProps}>
                 <IntlProvider locale={'zh-CN'}
                     messages={defaultLocaleConfig}
                 >
