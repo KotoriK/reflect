@@ -1,15 +1,17 @@
 import { Button, Container, Toolbar } from '@material-ui/core'
 import Link from 'next/link'
+import { forwardRef, PropsWithChildren, } from 'react'
 
-export default function UtilContainer({ children }: { children: JSX.Element | JSX.Element[] }) {
+const UtilContainer = forwardRef<HTMLDivElement, PropsWithChildren<{}>>(({ children }, ref) => {
     return <>
         <Toolbar>
-                <Link href="/">
-                    <Button color="primary">{"< 返回"}</Button>
-                </Link>
+            <Link href="/">
+                <Button color="primary">{"< 返回"}</Button>
+            </Link>
         </Toolbar>
-        <Container>
+        <Container ref={ref}>
             {children}
         </Container>
     </>
-}
+})
+export default UtilContainer
